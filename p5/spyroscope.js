@@ -1,12 +1,13 @@
 
 //Global variables
 //parameters to adjust - eventually might make sliding adjuster on screen
-var size = 700;				//size of window, also determines size of large, outer circle
-var cir = .92 * size / 2;			//size of the small circle that goes around the larger circle
-var multiply = .9;			//relative position of "pen" in the smaller circle
-var r = cir * multiply;
+var R = 300;				//size of large circle, also determines size of window
+var r;						//size of the small circle that goes around the larger circle
+var multiply;			//relative position of "pen" in the smaller circle
+var pen;
 var Npart = 200;			//number of partitions to divide the larger circle
-var Nsteps = 2.1e4;			//number of steps to take until finish drawing
+var Nsteps = 2e3;			//number of steps to take until finish drawing
+var NstepsTyping;
 
 //calculate globals from parameters
 var dTheta1;
@@ -17,24 +18,64 @@ var center;
 var x;
 var y;
 
-function setup() {
-	createCanvas(size, size);
-	// frameRate(10);
+let rSlider;
+let mulSlider;
+let stepSlider;
+// let stepInput;
+// let stepSubmit;
 
-	dTheta1 = 2 * PI / Npart;
-	dTheta2 = -dTheta1 * (size / cir) / 2;
-	console.log(dTheta1)
-	console.log(dTheta2)
-	center = size / 2 - cir;
+function setup() {
+	createCanvas(2 * R, 2 * R + 100);
+
+	text('Radius of smaller cog', 10, 2 * R);
+
+	rSlider = createSlider(0, 1, 0.5, 0.01);
+	rSlider.position(10, 2 * R + 20);
+
+	mulSlider = createSlider(0, 1, 1, 0.01);
+	mulSlider.position(10, 2 * R + 40);
+
+	stepSlider = createSlider(0, 1e4, 2e3, 100);
+	stepSlider.position(10, 2 * R + 60);
+	
+	/*
+	stepInput = createInput('');
+	stepInput.input(stepInputEvent);
+
+	stepSubmit = createButton('Submit');
+	stepSubmit.mousePressed(stepSubmitEvent);
+	*/
+
 }
+
+/*Code if you want the nSteps to be user input	*/
+
+// function stepSubmitEvent() {
+// 	Nsteps = NstepsTyping;
+// 	console.log(Nsteps);
+// }
+
+// function stepInputEvent() {
+// 	NstepsTyping = this.value();
+// 	console.log(NstepsTyping);
+// }
 
 function draw() {
 	background(220);
-	translate(width / 2, height / 2);
+	translate(R, R);
 	noFill();
+
+	r = rSlider.value() * R;
+	multiply = mulSlider.value();
+	Nsteps = stepSlider.value();
+
+	pen = r * multiply;
+	dTheta1 = 2 * PI / Npart;
+	dTheta2 = -dTheta1 * (R / r - 1);
+	center = R - r;
 	theta1 = 0;
 	theta2 = 0;
-	x = center + r;
+	x = center + pen;
 	y = 0;
 
 	beginShape();
@@ -45,8 +86,8 @@ function draw() {
 		theta1 += dTheta1;
 		theta2 += dTheta2;
 
-		x = center * cos(theta1) + r * cos(theta2);
-		y = center * sin(theta1) + r * sin(theta2);
+		x = center * cos(theta1) + pen * cos(theta2);
+		y = center * sin(theta1) + pen * sin(theta2);
 	}
 	endShape();
 }
